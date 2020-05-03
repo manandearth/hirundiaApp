@@ -15,15 +15,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import { MonoText } from "../components/StyledText";
 import { getNestsFromApi } from "../api/api.js";
 
-export default function HomeScreen() {
+export default function DbScreen() {
   const [nests, setNests] = React.useState("list not here...");
   const [clicked, setClicked] = React.useState(false);
 
   React.useEffect(() => {
-    clicked &&
-      getNestsFromApi().then(response => setNests(JSON.stringify(response)));
-    setClicked(false);
-  }, [clicked]);
+    getNestsFromApi().then(response => setNests(response));
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -31,67 +29,27 @@ export default function HomeScreen() {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
-        <View style={styles.welcomeContainer}>
-          <Image
-            source={require("../assets/images/swallow.png")}
-            style={styles.welcomeImage}
-          />
-        </View>
+        <View style={styles.welcomeContainer}></View>
 
         <View style={styles.getStartedContainer}>
-          <Notice />
-
-          <Text style={styles.getStartedText}>Log in to start surveying</Text>
-
           <View
             style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
           ></View>
         </View>
-        <Input placeholder="Username" />
-        <Input placeholder="Password" />
-        <Button
-          title="Log in"
-          color="#841584"
-          onPress={() => setClicked(true)}
-        />
-        <Text>{nests}</Text>
-        <View style={styles.helpContainer}>
-          <TouchableOpacity
-            onPress={handleMoreInformation}
-            style={styles.helpLink}
-          >
-            <Text style={styles.helpLinkText}>
-              More information on our website
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleWebAppLink} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>To use a browser instead</Text>
-          </TouchableOpacity>
-        </View>
+        {Object.keys(nests).map(id => (
+          <RenderRow key={`row - ${id}`} row={nests[id]} />
+        ))}
+        {/* <Text>{nests}</Text> */}
+        <View style={styles.helpContainer}></View>
       </ScrollView>
-
-      {/*      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>
-          This is a tab bar. You can edit it in:
-        </Text>
-        <View
-          style={[styles.codeHighlightContainer, styles.navigationFilename]}
-        >
-          <MonoText style={styles.codeHighlightText}>
-            navigation/BottomTabNavigator.js
-          </MonoText>
-        </View>
-      </View>
-       */}
     </View>
   );
 }
 
-HomeScreen.navigationOptions = {
+DbScreen.navigationOptions = {
   header: null
 };
+
 const Input = props => {
   const { placeholder } = props;
   const [value, onChangeText] = React.useState("");
@@ -105,21 +63,22 @@ const Input = props => {
     />
   );
 };
-function Notice() {
+
+const RenderRow = props => {
+  const { row } = props;
   return (
-    <Text style={styles.developmentModeText}>
-      A surveying tool. Use the form to add nests to the database.
-    </Text>
+    <View style={{ flex: 1, alignSelf: "stretch", flexDirection: "row" }}>
+      <View style={{ flex: 1, alignSelf: "stretch" }}>
+        <Text>{row}</Text>
+      </View>
+      {/* Edit these as they are your cells. You may even take parameters to display different data / react elements etc. */}
+      <View style={{ flex: 1, alignSelf: "stretch" }} />
+      <View style={{ flex: 1, alignSelf: "stretch" }} />
+      <View style={{ flex: 1, alignSelf: "stretch" }} />
+      <View style={{ flex: 1, alignSelf: "stretch" }} />
+    </View>
   );
-}
-
-function handleMoreInformation() {
-  WebBrowser.openBrowserAsync("https://proyecto-convivir.org/");
-}
-
-function handleWebAppLink() {
-  WebBrowser.openBrowserAsync("https://fast-anchorage-88647.herokuapp.com/");
-}
+};
 
 const styles = StyleSheet.create({
   container: {
