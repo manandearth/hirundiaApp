@@ -13,17 +13,30 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 
 import { MonoText } from "../components/StyledText";
-import { getNestsFromApi } from "../api/api.js";
+import { getNestsFromApi, postCredentials } from "../api/api.js";
 
 export default function HomeScreen() {
   const [nests, setNests] = React.useState("list not here...");
   const [clicked, setClicked] = React.useState(false);
-
+  const [credentials, setCredentials] = React.useState({});
+  const onCredentials = React.useCallback((username, password) => {
+    setCredentials({ username, password });
+  });
+  const [loginAttempt, setLoginAttempt] = React.useState(false);
+  const [temp, setTemp] = React.useState({});
   React.useEffect(() => {
     clicked &&
       getNestsFromApi().then(response => setNests(JSON.stringify(response)));
     setClicked(false);
   }, [clicked]);
+
+  React.useEffect(() => {
+    loginAttempt &&
+      postCredentials(credentials).then(response =>
+        setTemp(JSON.stringify(response))
+      );
+    setLoginAttempt(false);
+  }, [loginAttempt]);
 
   return (
     <View style={styles.container}>
@@ -47,13 +60,35 @@ export default function HomeScreen() {
             style={[styles.codeHighlightContainer, styles.homeScreenFilename]}
           ></View>
         </View>
-        <Input placeholder="Username" />
-        <Input placeholder="Password" />
+        <TextInput
+          placeholder="Username"
+          onChangeText={text =>
+            setCredentials({ ...credentials, username: text })
+          }
+        />
+
+        <TextInput
+          placeholder="Password"
+          textContentType="password"
+          autoCompleteType="password"
+          secureTextEntry={true}
+          coChangeText={text =>
+            setCredentials({ ...credentials, password: text })
+          }
+        />
         <Button
           title="Log in"
+          color="#337799"
+          onPress={() => setLoginAttempt(true)}
+        />
+        <Text>{credentials.username}</Text>
+        <Text>{JSON.stringify(temp)}</Text>
+        <Button
+          title="Show nests in DB"
           color="#841584"
           onPress={() => setClicked(true)}
         />
+
         <Text>{nests}</Text>
         <View style={styles.helpContainer}>
           <TouchableOpacity
